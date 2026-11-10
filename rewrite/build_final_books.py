@@ -814,7 +814,7 @@ def back_cover(n, doc):
                      fontname='DSB', fontfile=FONT_FILES['DSB'], fontsize=8.3, color=gold)
     # author block
     page.draw_line((M, 742), (PAGEX - M, 742), width=0.7, color=muted)
-    page.insert_text((M, 766), 'Sadikou Moukoddin', fontname='DSB', fontfile=FONT_FILES['DSB'],
+    page.insert_text((M, 766), 'SADIKOU Moukoddim', fontname='DSB', fontfile=FONT_FILES['DSB'],
                      fontsize=11.5, color=CREAM)
     put_spaced(page, M, 782, 'HEAD OF MATHEMATICS DEPARTMENT · MATHEMATICS TEACHER · CATEGORY 1',
                'DS', 6.8, muted, tracking=0.8)
