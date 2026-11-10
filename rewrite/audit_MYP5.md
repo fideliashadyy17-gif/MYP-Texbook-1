@@ -7,7 +7,13 @@ key recomputed independently from the question bodies; candidates confirmed agai
 flagged. Raw dumps silently drop radicals and some exponents, so nothing was flagged on a raw
 dump alone.
 
-## Verdict: 7 answer-key errors (Ch3 ×1, Ch7 ×5, Ch11 ×1 minor) + 2 self-flagged body defects.
+## Verdict (final, after re-verification pass): 5 answer-key errors (Ch3 ×1, Ch7 ×4) +
+## 1 minor key flag (Ch11) + 2 self-flagged body defects. Two earlier flags cleared.
+
+Exact replace-text and verification for the 5 errors: `MYP5/corrections.md` (each
+confirmed on rendered pages: 2.8×; 7–8× crops). Cleared flags: Mixed 7 Q18 (key correct,
+re-derived from the body) and Ch9 CA Q3 (my own arithmetic slip).
+
 
 ### Ch1–6 (1 error)
 - **3B Q7** — key prints 1.48661 / 2973.22; true values from the body data: 1.48780 / 2975.61.
