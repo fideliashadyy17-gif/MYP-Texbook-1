@@ -355,10 +355,6 @@ def body_defects(doc):
     ]:
         pending.append((p, lambda x=x, b=b, t=t, pg=p: put(pg, x, b, t, 'SS4I', 7.0)))
 
-if __name__ == '__main__':
-    which = sys.argv[1] if len(sys.argv) > 1 else 'all'
-    if which in ('A', 'all'):
-        part_A()
 
 
 
@@ -699,9 +695,161 @@ def part_B():
         os.replace(tmp, path)
         print(f'  MYP{n}: +1 cover +{total - base} content pages -> {total} pages total')
 
+
+
+# ================================================================ PART C — BACK COVERS
+BACK_STYLE = {
+    1: dict(bg=(0.051, 0.165, 0.157), gold=(0.839, 0.647, 0.361),
+            hdr_l=['MIDDLE YEARS PROGRAMME', 'YEAR 1 · MATHEMATICS'],
+            hdr_r=['FIRST EDITION', '2026'],
+            blurb=('The first volume of an original, inquiry-led series. A concept-driven course '
+                   'in number, proportion, algebra, shape and data — every idea built from worked '
+                   'examples, investigations and criterion-mapped tasks.'),
+            inside=('INSIDE THIS VOLUME', [
+                'Number systems · Place value and powers · Factors and primes',
+                'Fractions and decimals · Percentages · Patterns and equations',
+                'Lines, angles and constructions · Sets · Perimeter, area and volume · Data and graphs']),
+            right_lbl=['MIDDLE YEARS', 'PROGRAMME']),
+    2: dict(bg=(0.059, 0.122, 0.176), gold=(0.667, 0.514, 0.392),
+            hdr_l=['MYP YEAR 2 · STUDENT COURSEBOOK'],
+            hdr_r=[],
+            blurb=('A concept-driven inquiry course in ratio and proportion, algebra and pattern, '
+                   'geometry and space, probability and data — the second volume of a coherent '
+                   'five-year series.'),
+            inside=('INSIDE THIS VOLUME', [
+                'Ratio and proportion · Algebra and pattern · Geometry and space',
+                'Probability and data']),
+            right_lbl=['MIDDLE YEARS', 'PROGRAMME']),
+    3: dict(bg=(0.051, 0.106, 0.165), gold=(0.827, 0.631, 0.42),
+            hdr_l=['MIDDLE YEARS PROGRAMME', 'YEAR 3 · MATHEMATICS'],
+            hdr_r=['FIRST EDITION', '2026'],
+            blurb=('An inquiry-led course in number, algebra, proof, space and evidence — built '
+                   'around concepts, contexts and criteria, and designed as the third volume of a '
+                   'coherent five-year series.'),
+            inside=('INSIDE THIS VOLUME', [
+                'Real numbers · Powers and scientific notation · Functions and algebra',
+                'Linear relationships · Equations and systems · Transformations and congruence',
+                'Similarity and trigonometry · Solids and measurement · Bivariate data · Probability and evidence']),
+            right_lbl=['STUDENT EDITION', 'MYP YEAR 3']),
+    4: dict(bg=(0.059, 0.106, 0.106), gold=(0.78, 0.635, 0.392),
+            hdr_l=['A CONCEPT-BASED MATHEMATICS COURSE'],
+            hdr_r=['YEARS 3 · 4 · 5', 'MIDDLE YEARS PROGRAMME'],
+            blurb=('An original, inquiry-led course that builds algebraic fluency, geometric '
+                   'reasoning, statistical literacy and mathematical modelling — the fourth volume '
+                   'of a coherent five-year series.'),
+            inside=('INSIDE THIS VOLUME', [
+                'Number foundations · Algebraic expressions and factorisation · Linear equations and systems',
+                'Functions and linear models · Quadratic expressions and functions · Sequences and generalisation',
+                'Growth and financial mathematics · Congruence and transformations · Trigonometry · Statistics · Probability']),
+            right_lbl=['STUDENT EDITION', 'MYP YEAR 4']),
+    5: dict(bg=(0.059, 0.106, 0.106), gold=(0.78, 0.635, 0.392),
+            hdr_l=['A CONCEPT-BASED MATHEMATICS COURSE'],
+            hdr_r=['YEARS 3 · 4 · 5', 'MIDDLE YEARS PROGRAMME'],
+            blurb=('The final volume of an original, inquiry-led course: exponential and logarithmic '
+                   'functions, sequences and series, circle geometry, vectors and matrices, correlation '
+                   'and conditional probability — closing with a sustained modelling capstone.'),
+            inside=('INSIDE THIS VOLUME', [
+                'Polynomials and the factor theorem · Functions: transformations, composites and inverses',
+                'Exponential and logarithmic functions · Sequences and series · Quadratic inequalities',
+                'Circle geometry · Sine and cosine rules · Vectors and matrices · Statistics · Probability']),
+            right_lbl=['STUDENT EDITION', 'MYP YEAR 5']),
+}
+CREAM = (0.925, 0.905, 0.845)
+
+def put_spaced(page, x, y, text, key, size, color, tracking=0.0):
+    """Insert with manual letter-spacing; returns final x."""
+    for ch in text:
+        page.insert_text((x, y), ch, fontname=key, fontfile=FONT_FILES[key], fontsize=size, color=color)
+        x += txtw(key, ch, size) + tracking
+    return x
+
+def wrap_text(text, key, size, maxw):
+    words = text.split(' ')
+    lines, cur = [], [words[0]]
+    for wd in words[1:]:
+        if txtw(key, ' '.join(cur + [wd]), size) <= maxw:
+            cur.append(wd)
+        else:
+            lines.append(' '.join(cur)); cur = [wd]
+    lines.append(' '.join(cur))
+    return lines
+
+def back_cover(n, doc):
+    st = BACK_STYLE[n]
+    bg, gold = st['bg'], st['gold']
+    muted = tuple(min(1.0, c + 0.52) for c in bg)
+    page = doc.new_page(width=PAGEX, height=PAGEY)
+    page.draw_rect(f.Rect(0, 0, PAGEX, PAGEY), color=None, fill=bg, overlay=True)
+    M = 58.0
+    # header
+    y = 64.0
+    for i, t in enumerate(st['hdr_l']):
+        put_spaced(page, M, y + i * 14, t.upper(), 'DSB', 7, muted, tracking=1.1)
+    if st['hdr_r']:
+        for i, t in enumerate(st['hdr_r']):
+            w = txtw('DSB', t.upper(), 7) + 1.1 * (len(t.upper()) - 1)
+            put_spaced(page, PAGEX - M - w, y + i * 14, t.upper(), 'DSB', 7,
+                       gold if t == 'FIRST EDITION' else muted, tracking=1.1)
+    page.draw_line((M, 92), (PAGEX - M, 92), width=0.7, color=muted)
+    # about
+    put_spaced(page, M, 250, 'ABOUT THIS COURSEBOOK', 'DSB', 8.5, gold, tracking=1.6)
+    y = 278
+    for ln in wrap_text(st['blurb'], 'SS4I', 11.5, 425):
+        page.insert_text((M, y), ln, fontname='SS4I', fontfile=FONT_FILES['SS4I'], fontsize=11.5, color=CREAM)
+        y += 17.5
+    # gold rule + inside this volume
+    y += 26
+    page.draw_line((M, y - 8), (M + 60, y - 8), width=1.2, color=gold)
+    label, toc = st['inside']
+    put_spaced(page, M, y + 8, label, 'DSB', 8, muted, tracking=1.5)
+    y += 26
+    for ln in toc:
+        page.insert_text((M, y), ln, fontname='DS', fontfile=FONT_FILES['DS'], fontsize=8.8, color=muted)
+        y += 15
+    # feature lines
+    y = max(y + 30, 560)
+    page.insert_text((M, y), 'COMPLETE WORKED SOLUTIONS · INVESTIGATIONS · CRITERION-MAPPED ASSESSMENT TASKS',
+                     fontname='DS', fontfile=FONT_FILES['DS'], fontsize=8.3, color=muted)
+    page.insert_text((M, y + 15), '2026 EDITION — ALL ANSWERS INDEPENDENTLY VERIFIED · SUPPLEMENTARY SECTION INCLUDED',
+                     fontname='DSB', fontfile=FONT_FILES['DSB'], fontsize=8.3, color=gold)
+    # author block
+    page.draw_line((M, 742), (PAGEX - M, 742), width=0.7, color=muted)
+    page.insert_text((M, 766), 'Sadikou Moukoddin', fontname='DSB', fontfile=FONT_FILES['DSB'],
+                     fontsize=11.5, color=CREAM)
+    put_spaced(page, M, 782, 'HEAD OF MATHEMATICS DEPARTMENT · MATHEMATICS TEACHER · CATEGORY 1',
+               'DS', 6.8, muted, tracking=0.8)
+    rx = PAGEX - M
+    for i, t in enumerate(st['right_lbl']):
+        w = txtw('DS', t.upper(), 6.8) + 0.8 * (len(t.upper()) - 1)
+        put_spaced(page, rx - w, 762 + i * 11, t.upper(), 'DS', 6.8, muted, tracking=0.8)
+    # geometric accent (bottom right)
+    page.draw_circle((560, 806), 118, color=gold, width=0.8, fill=None)
+    for i in range(4):
+        page.draw_circle((418 + i * 26, 690), 5, color=gold, width=0.7, fill=None)
+    for i in range(3):
+        page.draw_circle((440 + i * 26, 712), 1.3, color=gold, width=1, fill=gold)
+    return page
+
+def part_C():
+    print('== Part C: back covers ==')
+    for n in BOOKS:
+        path = OUT[n]
+        if not os.path.exists(path):
+            print(f'  MYP{n}: missing {path}, run A first'); continue
+        doc = f.open(path)
+        back_cover(n, doc)
+        total = doc.page_count
+        tmp = path + '.new'
+        doc.save(tmp, garbage=3, deflate=True)
+        doc.close()
+        os.replace(tmp, path)
+        print(f'  MYP{n}: back cover appended -> {total} pages total')
+
 if __name__ == '__main__':
     which = sys.argv[1] if len(sys.argv) > 1 else 'all'
     if which in ('A', 'all'):
         part_A()
     if which in ('B', 'all'):
         part_B()
+    if which in ('C', 'all'):
+        part_C()
